@@ -1,0 +1,46 @@
+#!/usr/bin/python3
+
+import os
+
+work_dir = os.getcwd()
+
+work_file_list = os.listdir(work_dir)
+
+sourcefile_list = []
+
+language_module = ""
+
+if "main.cpp" in work_file_list:
+    language_module = "cpp"
+    sourcefile_list = [i for i in work_file_list if i[-4:]==".cpp"]
+elif "main.c" in work_file_list:
+    language_module = "c"
+    sourcefile_list = [i for i in work_file_list if i[-2:]==".c"]
+else:
+    print("文件夹中既没有main.c也没有main.cpp，请检查你的程序或者当前工作目录")
+
+with open("Makefile", "w") as makefile:
+    makefile.write("TAR=main\n")
+    obj_files = [i.split(".")[0]+".o" for i in sourcefile_list]
+    makefile.write("OBJ=")
+    for i in obj_files:
+        makefile.write(i + " ")
+    makefile.write("\n")
+    makefile.write("CC:=" + ("g++" if language_module == "cpp" else "gcc") + "\n")
+    makefile.write("RM:=rm -rf\n\n")
+    makefile.write("$(TAR) : $(OBJ)\n\t$(CC) $^ -o $@\n")
+    makefile.write("%.o: %." + language_module + "\n\t$(CC) -c $^ -o $@\n\n")
+    makefile.write(".PHONY:\n")
+    makefile.write("clearall:\n")
+    makefile.write("\t$(RM) $(OBJ) $(TAR)\n")
+    makefile.write("clear:\n")
+    makefile.write("\t$(RM) $(OBJ)\n")
+
+print("开始编译目录中的" + language_module + "程序……")
+os.system("make")
+
+print("开始删除编译过程中生成的中间文件……")
+os.system("make clear")
+
+print("*************程序开始运行*************")
+os.system(os.path.join(work_dir, "main"))
