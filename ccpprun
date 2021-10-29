@@ -2,7 +2,11 @@
 
 import os
 
-work_dir = os.getcwd()
+if len(sys.argv) > 1:
+    work_dir = os.path.dirname(sys.argv[1])
+    os.chdir(work_dir)
+else:
+    work_dir = os.getcwd()
 
 work_file_list = os.listdir(work_dir)
 
